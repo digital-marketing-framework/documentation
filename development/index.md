@@ -3,4 +3,4 @@
 
 * [Distributor](distributor/index.md)
 * [Collector](collector/index.md)
-* [Events](events.md)
+* [Core](core/index.md)
