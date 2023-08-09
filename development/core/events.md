@@ -4,69 +4,49 @@
 
 Registry update events are used to register plugins and services for the DMF. Since the DMF is divided into two parts - distributor and collector - each of which can work without the other, there will be two different registries if the core packages of both parts are installed.
 
-This is why we need to use events to register plugins and other classes and objects. It might be necessary to register them to more than one registry.
+This is why we need to use events to register plugins and other classes and objects. It might be necessary to register them in more than one registry.
 
-We distinguish between three different types of registries:
-* The CoreRegistry is able to register everything that both, the distributor registry and the collector registry, can use.
-* The DistributorRegistry can register all distributor-specific items.
-* The CollectorRegistry can register all collector-specific items.
+We distinguish between three different domains of registries:
+* `RegistryDomain::CORE` - The core registry is able to register everything that both, the distributor registry and the collector registry, can use.
+* `RegistryDomain::DISTRIBUTOR` - The distributor registry can register all distributor-specific items.
+* `RegistryDomain::COLLECTOR` - The collector registry can register all collector-specific items.
 
-Furthermore we define three different update events:
-* GlobalConfigurationUpdate: Is there to register system-specific global configuration, like the extension configuration in TYPO3.
-* ServiceUpdate: Is there to register services, that will be used by either the system or other services and plugins. Services are treated as Singletons.
-* PluginUpdate: Is there to register plugins. A plugin is always newly instanciated whenever it is requested.
+Regardless of which registry domain we are talking about, there are three different types of updates which need to be distinguished because the order in which updates are registered is important.
 
-The different update events are there so that we can be sure that everything is registered in the correct order. The global configuration first. The services second, as they might need the global configuration, and the plugins third, as they might need the global configuration and services.
+* `RegistryUpdateType::GLOBAL_CONFIGURATION` - Is there to register system-specific global configuration, like the extension configuration in TYPO3.
 
-Not all registries have all update events, because they are not all needed. So, we won't find all combinations of CoreRegistry/DistributorRegistry/CollectorRegistry and GlobalConfigurationUpdate/ServiceUpdate/PluginUpdate.
+* `RegistryUpdateType::SERVICE` - Is there to register services, that will be used by either the system or other services and plugins. Services are treated as Singletons.
+* `RegistryUpdateType::GLOBAL_PLUGIN` - Is there to register plugins. A plugin is always newly instanciated whenever it is requested.
+
+The update types are not represented by different events because along with the domain distinction this would result in nine different events, which seems excessive and unnecessary. Instead the events of the three domains are triggered three times each, one time for each update type. The update type of the current event can be requested by calling the method `getUpdateType()`.
 
 The signature for event listener IDs is suggested like this:
 
-[PACKAGE-NAME]/registry-update/[REGISTRY-TYPE]/[UPDATE-TYPE]
+[PACKAGE-NAME]/registry-update/[REGISTRY-TYPE]
 
-Where the PACKAGE-NAME is the name of the package that is defining the listener. The REGISTRY-TYPE is describing what where the registered items belong to (core, distributor or collector). And the UPDATE-TYPE defines the type of items to be updated (global-configuration, service, plugin).
+Where the PACKAGE-NAME is the name of the package that is defining the listener and the REGISTRY-TYPE is describing what where the registered items belong to (core, distributor or collector).
 
-Example: digital-marketing-framework/core/registry-update/core/global-configuration
+Example: digital-marketing-framework/core/registry-update/core
 
 The suggested class name of a listener is similar, except that the own package name is already included in the namespace by default and therefore does not need to be part of the class name.
 
-[REGISTRY-TYPE]Registry[UPDATE-TYPE]UpdateEvent
+[REGISTRY-TYPE]RegistryUpdateEvent
 
-Example: CoreRegistryGlobalConfigurationUpdateEvent
+Example: CoreRegistryUpdateEvent
 
-### CoreRegistryGlobalConfigurationUpdateEvent
+### CoreRegistryUpdateEvent
 * package: typo3-core
-* class: DigitalMarketingFramework\Typo3\Core\Registry\Event\CoreRegistryGlobalConfigurationUpdateEvent
+* class: DigitalMarketingFramework\Typo3\Core\Registry\Event\CoreRegistryUpdateEvent
 * domain: Registry
 
-### CoreRegistryServiceUpdateEvent
-* package: typo3-core
-* class: DigitalMarketingFramework\Typo3\Core\Registry\Event\CoreRegistryServiceUpdateEvent
-* domain: Registry
-
-### CoreRegistryPluginUpdateEvent
-* package: typo3-core
-* class: DigitalMarketingFramework\Typo3\Core\Registry\Event\CoreRegistryPluginUpdateEvent
-* domain: Registry
-
-### CollectorRegistryServiceUpdateEvent
+### CollectorRegistryUpdateEvent
 * package: typo3-collector-core
-* class: DigitalMarketingFramework\Typo3\Collector\Core\Registry\Event\CollectorRegistryServiceUpdateEvent
+* class: DigitalMarketingFramework\Typo3\Collector\Core\Registry\Event\CollectorRegistryUpdateEvent
 * domain: Registry
 
-### CollectorRegistryPluginUpdateEvent
-* package: typo3-collector-core
-* class: DigitalMarketingFramework\Typo3\Collector\Core\Registry\Event\CollectorRegistryPluginUpdateEvent
-* domain: Registry
-
-### DistributorRegistryServiceUpdateEvent
+### DistributorRegistryUpdateEvent
 * package: typo3-distributor-core
-* class: DigitalMarketingFramework\Typo3\Distributor\Core\Registry\Event\DistributorRegistryServiceUpdateEvent
-* domain: Registry
-
-### DistributorRegistryPluginUpdateEvent
-* package: typo3-distributor-core
-* class: DigitalMarketingFramework\Typo3\Distributor\Core\Registry\Event\DistributorRegistryPluginUpdateEvent
+* class: DigitalMarketingFramework\Typo3\Distributor\Core\Registry\Event\DistributorRegistryUpdateEvent
 * domain: Registry
 
 
