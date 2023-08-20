@@ -20,14 +20,6 @@ Regardless of which registry domain we are talking about, there are three differ
 
 The update types are not represented by different events because along with the domain distinction this would result in nine different events, which seems excessive and unnecessary. Instead the events of the three domains are triggered three times each, one time for each update type. The update type of the current event can be requested by calling the method `getUpdateType()`.
 
-The signature for event listener IDs is suggested like this:
-
-[PACKAGE-NAME]/registry-update/[REGISTRY-TYPE]
-
-Where the PACKAGE-NAME is the name of the package that is defining the listener and the REGISTRY-TYPE is describing what where the registered items belong to (core, distributor or collector).
-
-Example: digital-marketing-framework/core/registry-update/core
-
 The suggested class name of a listener is similar, except that the own package name is already included in the namespace by default and therefore does not need to be part of the class name.
 
 [REGISTRY-TYPE]RegistryUpdateEvent
